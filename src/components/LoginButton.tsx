@@ -1,24 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-
-const supabaseConfigured = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-);
+import { supabaseConfigured, useSupabaseUser } from "@/lib/useSupabaseUser";
 
 export default function LoginButton() {
-  const [email, setEmail] = useState<string | null>(null);
-
-  useEffect(() => {
-    const supabase = getSupabaseBrowserClient();
-    if (!supabase) return;
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      // Supabase는 INITIAL_SESSION 이벤트를 즉시 발화하므로 마이크로태스크로 미룬다
-      queueMicrotask(() => setEmail(session?.user?.email ?? null));
-    });
-    return () => sub.subscription.unsubscribe();
-  }, []);
+  const { user } = useSupabaseUser();
+  const email = user?.email ?? null;
 
   async function signIn() {
     const supabase = getSupabaseBrowserClient();

@@ -4,9 +4,9 @@
 
 ## 로드맵
 
-- **Phase 1 (현재)** — 음료 검색 + 브랜드별 비교 + 광고 슬롯 + 소셜 로그인
-- **Phase 2** — 리뷰·별점(맛 태그) + 마이페이지(마셨어요/마시고 싶어요)
-- **Phase 3** — 통계 대시보드, 레시피↔맛 상관분석, 신규 음료 제안
+- **Phase 1 (완료)** — 음료 검색 + 브랜드별 비교 + 광고 슬롯 + 소셜 로그인
+- **Phase 2 (완료)** — 리뷰·별점(맛 태그) + 마이페이지(마셨어요/마시고 싶어요)
+- **Phase 3** — 통계 대시보드, 레시피↔맛 상관분석, 신규 음료 제안, 목록 평점순 정렬
 
 ## 실행
 
@@ -15,7 +15,13 @@ npm install
 npm run dev   # http://localhost:3000
 ```
 
-환경변수 없이 바로 실행된다 — 데이터는 로컬 시드(`src/data/seed.ts`)에서 읽고, 로그인 버튼과 광고는 비활성(플레이스홀더) 상태로 렌더링된다.
+환경변수 없이 바로 실행된다 — 카탈로그는 로컬 시드(`src/data/seed.ts`)에서 읽고, 로그인·리뷰·마이페이지·광고는 비활성(안내 문구/플레이스홀더) 상태로 렌더링된다.
+
+## 데이터 아키텍처
+
+- **카탈로그**(브랜드/음료/메뉴): 로컬 시드 `src/data/seed.ts`가 원본. 페이지는 SSG로 빌드된다.
+- **사용자 데이터**(리뷰, 마셨어요/마시고 싶어요): Supabase에 저장하고 클라이언트에서 조회한다 (`src/lib/reviews.ts`).
+- 두 저장소는 **동일한 text id**로 연결된다. 시드를 수정하면 `npm run seed:sql`로 `supabase/seed.sql`을 재생성해 DB에 반영할 것 (upsert 방식이라 재실행해도 안전).
 
 ## 구조
 
@@ -40,8 +46,8 @@ supabase/migrations/          # DB 스키마 (Phase 1+2 테이블, RLS 포함)
 
 `.env.example`을 `.env.local`로 복사한 후:
 
-1. **Supabase** — 프로젝트 생성 → `supabase/migrations/0001_init.sql`을 SQL Editor에서 실행 → URL/anon key를 env에 입력. Auth > Providers에서 Google(또는 카카오) 활성화하면 로그인 동작.
-   - 데이터를 Supabase로 옮길 때는 `src/lib/data.ts`의 함수 내부만 Supabase 쿼리로 교체하면 된다 (페이지 코드는 수정 불필요).
+1. **Supabase** — 프로젝트 생성 → SQL Editor에서 `supabase/migrations/0001_init.sql` 실행(스키마) → `supabase/seed.sql` 실행(카탈로그) → URL/anon key를 env에 입력. Auth > Providers에서 Google(또는 카카오) 활성화하면 로그인·리뷰·마이페이지가 모두 동작.
+   - 카탈로그 조회까지 Supabase로 옮기려면 `src/lib/data.ts`의 함수 내부만 Supabase 쿼리로 교체하면 된다 (페이지 코드는 수정 불필요).
 2. **Google AdSense** — 승인 후 `NEXT_PUBLIC_ADSENSE_CLIENT` 설정, `AdSlot` 컴포넌트에 슬롯 ID 전달. 승인에 수 주가 걸릴 수 있으니 일찍 신청할 것.
 3. **배포** — Vercel에 리포 연결이 가장 간단.
 

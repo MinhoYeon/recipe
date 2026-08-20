@@ -16,6 +16,9 @@ export default function Header() {
           <Link href="/brands" className="hover:text-zinc-900 dark:hover:text-white">
             브랜드
           </Link>
+          <Link href="/me" className="hover:text-zinc-900 dark:hover:text-white">
+            마이페이지
+          </Link>
         </nav>
         <LoginButton />
       </div>

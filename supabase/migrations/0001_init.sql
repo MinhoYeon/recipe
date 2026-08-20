@@ -1,9 +1,13 @@
 -- 마실레시피 초기 스키마
 -- Phase 1(브랜드/음료/레시피)과 Phase 2(리뷰/사용자 기록) 테이블을 함께 정의한다.
--- Supabase SQL Editor 또는 `supabase db push`로 적용.
+-- Supabase SQL Editor 또는 `supabase db push`로 적용 후 supabase/seed.sql로 카탈로그 시드.
+--
+-- 카탈로그(brands/drinks/brand_drinks)의 id는 로컬 시드(src/data/seed.ts)와
+-- 동일한 text id를 쓴다. 앱은 카탈로그를 로컬에서 읽고 리뷰/기록만 DB에 저장하므로
+-- 두 저장소의 id가 일치해야 한다.
 
 create table brands (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key,
   slug text unique not null,
   name text not null,
   color text not null default '#666666',
@@ -12,7 +16,7 @@ create table brands (
 );
 
 create table drinks (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key,
   slug text unique not null,
   name text not null,
   name_en text not null default '',
@@ -23,9 +27,9 @@ create table drinks (
 );
 
 create table brand_drinks (
-  id uuid primary key default gen_random_uuid(),
-  brand_id uuid not null references brands (id) on delete cascade,
-  drink_id uuid not null references drinks (id) on delete cascade,
+  id text primary key,
+  brand_id text not null references brands (id) on delete cascade,
+  drink_id text not null references drinks (id) on delete cascade,
   menu_name text not null,
   price integer not null,
   size_name text not null default '',
@@ -43,7 +47,7 @@ create table brand_drinks (
 create table reviews (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
-  brand_drink_id uuid not null references brand_drinks (id) on delete cascade,
+  brand_drink_id text not null references brand_drinks (id) on delete cascade,
   rating smallint not null check (rating between 1 and 5),
   -- 맛 태그: ['sweet','bitter','sour','nutty','body'] 중 복수 선택
   taste_tags text[] not null default '{}',
@@ -56,7 +60,7 @@ create table reviews (
 create table user_drinks (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
-  brand_drink_id uuid not null references brand_drinks (id) on delete cascade,
+  brand_drink_id text not null references brand_drinks (id) on delete cascade,
   status text not null check (status in ('drank', 'want')),
   created_at timestamptz not null default now(),
   unique (user_id, brand_drink_id)

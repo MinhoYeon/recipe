@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AdSlot from "@/components/AdSlot";
+import ReviewSection from "@/components/ReviewSection";
 import { getAllDrinkSlugs, getDrinkBySlug } from "@/lib/data";
 import type { BrandDrinkWithBrand } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/types";
@@ -150,9 +151,14 @@ export default async function DrinkPage({ params }: DrinkPageProps) {
 
       <AdSlot />
 
-      <section className="rounded-2xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-400 dark:border-zinc-700">
-        ⭐ 리뷰·별점 기능이 곧 추가됩니다. 마셔본 브랜드의 맛을 평가해 주세요!
-      </section>
+      <ReviewSection
+        menus={drink.menus.map((m) => ({
+          id: m.id,
+          menuName: m.menuName,
+          brandName: m.brand.name,
+          brandColor: m.brand.color,
+        }))}
+      />
     </div>
   );
 }
